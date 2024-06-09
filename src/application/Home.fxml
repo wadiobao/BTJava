@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="578.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HomeController">
+<BorderPane fx:id="bd" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="685.0" prefWidth="1071.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.HomeController">
    <top>
       <GridPane alignment="CENTER" prefHeight="57.0" prefWidth="913.0" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -36,14 +36,14 @@
             <HBox alignment="CENTER" prefHeight="30.0" prefWidth="401.0" spacing="80.0" GridPane.columnIndex="1">
                <children>
                   <Label fx:id="hello" text="Xin chào" />
-                  <Hyperlink text="Đăng xuất" />
+                  <Hyperlink fx:id="logout" onAction="#logOut" text="Đăng xuất" />
                </children>
             </HBox>
          </children>
       </GridPane>
    </top>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="47.0" prefWidth="597.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" prefHeight="47.0" prefWidth="957.0" BorderPane.alignment="CENTER">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" text="Bản quyền thuộc về Quang Bảo" />
          </children>
@@ -54,20 +54,26 @@
          <children>
             <ImageView fx:id="imgview" fitHeight="237.0" fitWidth="270.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../../Main/Downloads/redsvn-hochiminh-10.jpg" />
+                  <Image url="@../../img/defautl.jpg" />
                </image>
                <viewport>
                   <Rectangle2D width="270.0" />
                </viewport></ImageView>
-            <Button mnemonicParsing="false" text="Đổi ảnh" />
+            <Button fx:id="changeimg" mnemonicParsing="false" onAction="#changeImg" text="Đổi ảnh" />
             <Label text="Email" />
             <TextField fx:id="emailtf" />
             <Label layoutX="10.0" layoutY="184.0" text="Họ tên" />
             <TextField fx:id="fullnametf" layoutX="10.0" layoutY="201.0" />
+            <Label text="Thể loại" />
+            <TextField />
+            <Label text="Đạo diễn" />
+            <TextField />
+            <Label text="Thời lượng" />
+            <TextField />
             <HBox alignment="CENTER" prefHeight="58.0" prefWidth="268.0" spacing="5.0">
                <children>
                   <Button fx:id="addbtn" mnemonicParsing="false" onAction="#add" text="Thêm" />
-                  <Button mnemonicParsing="false" text="Sửa" />
+                  <Button fx:id="modify" mnemonicParsing="false" onAction="#modifyAll" text="Sửa" />
                   <Button fx:id="deluser" mnemonicParsing="false" onAction="#deluser" text="Xóa" />
                </children>
             </HBox>
@@ -82,8 +88,14 @@
         <columns>
           <TableColumn fx:id="emailcol" prefWidth="224.0" text="Email" />
           <TableColumn fx:id="fullnamecol" prefWidth="247.0" text="Họ tên" />
-            <TableColumn fx:id="imgurl" editable="false" minWidth="0.0" prefWidth="85.0" text="text" />
+            <TableColumn fx:id="imgurl" editable="false" minWidth="0.0" prefWidth="85.0" text="text" visible="false" />
+            <TableColumn prefWidth="75.0" text="Thể loại" />
+            <TableColumn prefWidth="75.0" text="Đạo diễn" />
+            <TableColumn prefWidth="75.0" text="Thời lượng" />
         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
       </TableView>
    </center>
 </BorderPane>
