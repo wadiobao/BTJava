@@ -52,25 +52,31 @@
    <right>
       <VBox prefHeight="501.0" prefWidth="278.0" spacing="3.0" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fx:id="imgview" fitHeight="237.0" fitWidth="270.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../img/defautl.jpg" />
-               </image>
-               <viewport>
-                  <Rectangle2D width="270.0" />
-               </viewport></ImageView>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <ImageView fx:id="imgview" fitHeight="237.0" fitWidth="270.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../img/defautl.jpg" />
+                     </image>
+                     <viewport>
+                        <Rectangle2D width="270.0" />
+                     </viewport>
+                  </ImageView>
+               </children>
+            </HBox>
             <Button fx:id="changeimg" mnemonicParsing="false" onAction="#changeImg" text="Đổi ảnh" />
-            <Label text="Email" />
-            <TextField fx:id="emailtf" />
-            <Label layoutX="10.0" layoutY="184.0" text="Họ tên" />
-            <TextField fx:id="fullnametf" layoutX="10.0" layoutY="201.0" />
+            <Label text="Tên phim" />
+            <TextField fx:id="nametf" />
+            <Label layoutX="10.0" layoutY="184.0" text="Quốc gia" />
+            <TextField fx:id="countrytf" layoutX="10.0" layoutY="201.0" />
             <Label text="Thể loại" />
-            <TextField />
+            <TextField fx:id="genretf" />
             <Label text="Đạo diễn" />
-            <TextField />
-            <Label text="Thời lượng" />
-            <TextField />
-            <HBox alignment="CENTER" prefHeight="58.0" prefWidth="268.0" spacing="5.0">
+            <TextField fx:id="directf" />
+            <Label text="Năm sản xuất" />
+            <TextField fx:id="timetf" />
+            <TextField fx:id="urltf" disable="true" editable="false" opacity="0.0" prefHeight="21.0" prefWidth="244.0" visible="false" />
+            <HBox alignment="CENTER" prefHeight="48.0" prefWidth="270.0" spacing="5.0">
                <children>
                   <Button fx:id="addbtn" mnemonicParsing="false" onAction="#add" text="Thêm" />
                   <Button fx:id="modify" mnemonicParsing="false" onAction="#modifyAll" text="Sửa" />
@@ -86,12 +92,12 @@
    <center>
       <TableView fx:id="tbluser" onMouseClicked="#choose" prefHeight="501.0" prefWidth="612.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="emailcol" prefWidth="224.0" text="Email" />
-          <TableColumn fx:id="fullnamecol" prefWidth="247.0" text="Họ tên" />
-            <TableColumn fx:id="imgurl" editable="false" minWidth="0.0" prefWidth="85.0" text="text" visible="false" />
-            <TableColumn prefWidth="75.0" text="Thể loại" />
-            <TableColumn prefWidth="75.0" text="Đạo diễn" />
-            <TableColumn prefWidth="75.0" text="Thời lượng" />
+          <TableColumn fx:id="emailcol" prefWidth="200.0" text="Tên phim" />
+          <TableColumn fx:id="fullnamecol" prefWidth="100.0" text="Quốc gia" />
+            <TableColumn fx:id="imgurl" editable="false" minWidth="0.0" prefWidth="85.0" text="non" visible="false" />
+            <TableColumn fx:id="genrecol" prefWidth="100.0" text="Thể loại" />
+            <TableColumn fx:id="directcol" prefWidth="200.0" text="Đạo diễn" />
+            <TableColumn fx:id="timecol" prefWidth="100.0" text="Năm sản xuất" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

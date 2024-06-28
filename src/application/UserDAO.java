@@ -18,13 +18,13 @@ public class UserDAO {
 	@FXML
 	private TextField fullnametf;
 	
-	public static List<User> listAll(){
-		List<User> list  = new ArrayList<User>();
+	public static List<Film> listAll(){
+		List<Film> list  = new ArrayList<Film>();
 		
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
-		String sql = "SELECT * FROM tbluser";
+		String sql = "SELECT * FROM chitiet";
 		
 		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
@@ -33,12 +33,15 @@ public class UserDAO {
 			ResultSet result = statement.executeQuery(sql);
 			
 			while(result.next()) {
-				String email = result.getString("email");
-				String fullname = result.getString("fullname");
+				String name = result.getString("tenphim");
+				String country = result.getString("quocgia");
 				String imgurl = result.getString("imgurl");
+				String genre = result.getString("theloai");
+				String director = result.getString("daodien");
+				String time = result.getString("namsx");
 				
-				User user = new User(email, fullname,imgurl);
-				list.add(user);
+				Film film = new Film(name, country, genre, director, time, imgurl);
+				list.add(film);
 			}
 			
 			connect.close();
@@ -55,19 +58,23 @@ public class UserDAO {
 		
 	}
 	
-	public static void addUser(User user) {
+	public static void addUser(Film film) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
-		String sql = "INSERT INTO tbluser (email,fullname) VALUES (?,?)";
+		String sql = "INSERT INTO chitiet (tenphim,quocgia,theloai,daodien,namsx) VALUES (?,?,?,?,?)";
 		boolean inserted = false;
 		
 		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
 			Connection connect = DriverManager.getConnection(jdbcURL, jdbcUser, jdbcPass);
 			PreparedStatement statement = connect.prepareStatement(sql);
-			statement.setString(1, user.getEmail());
-			statement.setString(2, user.getFullname());
+			statement.setString(1, film.getName());
+			statement.setString(2, film.getCountry());
+			statement.setString(3, film.getGenre());
+			statement.setString(4, film.getDirector());
+			statement.setString(5, film.getTime());
+			
 			
 			inserted = statement.executeUpdate() > 0;
 			statement.close();
@@ -81,19 +88,22 @@ public class UserDAO {
 		}
 	}
 	
-	public static void delUser(User user) {
+	public static void delUser(Film film) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
-		String sql = "DELETE FROM tbluser WHERE email=? AND fullname=?";
+		String sql = "DELETE FROM chitiet WHERE tenphim=? AND quocgia=? AND theloai=? AND daodien=? AND namsx=?";
 		boolean deleted = false;
 		
 		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
 			Connection connect = DriverManager.getConnection(jdbcURL, jdbcUser, jdbcPass);
 			PreparedStatement statement = connect.prepareStatement(sql);
-			statement.setString(1, user.getEmail());
-			statement.setString(2, user.getFullname());
+			statement.setString(1, film.getName());
+			statement.setString(2, film.getCountry());
+			statement.setString(3, film.getGenre());
+			statement.setString(4, film.getDirector());
+			statement.setString(5, film.getTime());
 			
 			deleted = statement.executeUpdate() > 0;
 			statement.close();
@@ -107,19 +117,19 @@ public class UserDAO {
 		}
 	}
 	
-	public static void imgChange(User user) {
+	public static void imgChange(Film film) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
-		String sql = "UPDATE tbluser SET imgUrl = ? WHERE email =?";
+		String sql = "UPDATE chitiet SET imgurl = ? WHERE tenphim =?";
 		boolean inserted = false;
 		
 		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
 			Connection connect = DriverManager.getConnection(jdbcURL, jdbcUser, jdbcPass);
 			PreparedStatement statement = connect.prepareStatement(sql);
-			statement.setString(1, user.getImgurl());
-			statement.setString(2, user.getEmail());
+			statement.setString(1, film.getImgurl());
+			statement.setString(2, film.getName());
 			
 			inserted = statement.executeUpdate() > 0;
 			statement.close();
@@ -133,20 +143,24 @@ public class UserDAO {
 		}
 	}
 	
-	public static void updateUser(User user,String oldmail) {
+	public static void updateUser(Film film,String oldname) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
-		String sql = "UPDATE tbluser SET email = ?, fullname =? WHERE email =?";
+		String sql = "UPDATE chitiet SET tenphim = ?, quocgia =?, theloai=?, daodien=?, namsx=? WHERE tenphim =?";
 		boolean updated = false;
 		
 		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
 			Connection connect = DriverManager.getConnection(jdbcURL, jdbcUser, jdbcPass);
 			PreparedStatement statement = connect.prepareStatement(sql);
-			statement.setString(1, user.getEmail());
-			statement.setString(2, user.getFullname());
-			statement.setString(3, oldmail);
+			statement.setString(1, film.getName());
+			statement.setString(2, film.getCountry());
+			statement.setString(2, film.getCountry());
+			statement.setString(3, film.getGenre());
+			statement.setString(4, film.getDirector());
+			statement.setString(5, film.getTime());
+			statement.setString(6, oldname);
 			
 			updated = statement.executeUpdate() > 0;
 			statement.close();
@@ -196,4 +210,7 @@ public class UserDAO {
 		}
 		return infor;
 	}
+	
+	
+	
 }

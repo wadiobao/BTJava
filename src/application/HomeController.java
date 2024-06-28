@@ -8,8 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -35,7 +40,7 @@ import javafx.stage.Stage;
 public class HomeController implements Initializable {
 	private String username;
 	private int role;
-	
+
 	public int getRole() {
 		return role;
 	}
@@ -52,24 +57,24 @@ public class HomeController implements Initializable {
 		this.username = username;
 	}
 
-	private String oldmail;
-	private String defaultemail = "file:img/defautl.jpg";
+	private String oldname;
+	private String defaulturl = "file:img/defautl.jpg";
 	@FXML
-	private TableView<User> tbluser;
+	private TableView<Film> tbluser;
 	@FXML
 	private ImageView imgview;
 	@FXML
 	private Label hello;
 	@FXML
-	private TableColumn<User, String> emailcol;
+	private TableColumn<Film, String> emailcol;
 	@FXML
-	private TableColumn<User, String> fullnamecol;
+	private TableColumn<Film, String> fullnamecol;
 	@FXML
-	private TextField emailtf;
+	private TextField nametf, countrytf, directf, genretf, timetf, urltf;
 	@FXML
-	private TextField fullnametf;
+	private TableColumn<Film, String> imgurl, genrecol, directcol;
 	@FXML
-	private TableColumn<User, String> imgurl;
+	private TableColumn<Film, Integer> timecol;
 	@FXML
 	private Button changeimg;
 	@FXML
@@ -90,26 +95,28 @@ public class HomeController implements Initializable {
 
 	@FXML
 	public void add() {
-		User user = new User(emailtf.getText(), fullnametf.getText());
-		UserDAO.addUser(user);
-		emailtf.setText(null);
-		fullnametf.setText(null);
+		Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
+				timetf.getText());
+		UserDAO.addUser(film);
+		cleartf();
 		showUser();
 	}
 
 	@FXML
 	public void deluser() {
-
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Thông báo");
 		alert.setHeaderText("Bạn có muốn xóa không ?");
 		alert.showAndWait().ifPresent(rep -> {
 			if (rep == ButtonType.OK) {
-				User user = new User(emailtf.getText(), fullnametf.getText(), imgurl.getText());
-				String userurl = user.getImgurl().replace("'", "");
-				if (!userurl.equals(defaultemail)) {
+
+				Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
+						timetf.getText(), urltf.getText());
+				String userurl = film.getImgurl().replace("'", "");
+
+				if (!userurl.equals(defaulturl)) {
 					Path del = Paths
-							.get(new File("img").getAbsolutePath() + "/" + user.getImgurl().replace("file:img", ""));
+							.get(new File("img").getAbsolutePath() + "/" + film.getImgurl().replace("file:img", ""));
 					try {
 						Files.deleteIfExists(del);
 					} catch (IOException e) {
@@ -117,10 +124,13 @@ public class HomeController implements Initializable {
 						e.printStackTrace();
 					}
 				}
-				UserDAO.delUser(user);
-				emailtf.setText(null);
-				fullnametf.setText(null);
-				imgview.setImage(new Image(defaultemail));
+				UserDAO.delUser(film);
+				nametf.setText(null);
+				countrytf.setText(null);
+				genretf.setText(null);
+				directf.setText(null);
+				timetf.setText(null);
+				imgview.setImage(new Image(defaulturl));
 				showUser();
 
 			}
@@ -130,15 +140,45 @@ public class HomeController implements Initializable {
 
 	@FXML
 	public void choose() {
-		User user = tbluser.getSelectionModel().getSelectedItem();
-		if (user != null) {
-			emailtf.setText(user.getEmail());
-			fullnametf.setText(user.getFullname());
-			imgview.setImage(new Image(user.getImgurl().replace("'", "")));
-			// System.out.println(user.getImgurl());
-			oldmail = emailtf.getText();
+		Film film = tbluser.getSelectionModel().getSelectedItem();
+
+		if (film != null) {
+			nametf.setText(film.getName());
+			countrytf.setText(film.getCountry());
+			genretf.setText(film.getGenre());
+			directf.setText(film.getDirector());
+			timetf.setText(film.getTime() + "");
+			urltf.setText(film.getImgurl().replace("'", ""));
+			imgview.setImage(new Image(film.getImgurl().replace("'", "")));
+			if (role == 0) {
+				oldname = nametf.getText();
+
+				changeimg.setDisable(false);
+				modify.setDisable(false);
+				deluser.setDisable(false);
+				addbtn.setDisable(true);
+
+				if (nametf.getText().equals("(new)")) {
+					cleartf();
+					nametf.setPromptText("(new)");
+					countrytf.setPromptText("(new)");
+					genretf.setPromptText("(new)");
+					directf.setPromptText("(new)");
+					timetf.setPromptText("(new)");
+					changeimg.setDisable(true);
+					modify.setDisable(true);
+					deluser.setDisable(true);
+					addbtn.setDisable(false);
+				}
+			}
+
 		}
 	}
+	/*
+	 * @FXML public void notchoose() { nametf.setText(null);
+	 * countrytf.setText(null); genretf.setText(null); directf.setText(null);
+	 * timetf.setText(null); imgview.setImage(new Image(defaulturl)); }
+	 */
 
 	@FXML
 	public void changeImg() throws IOException, URISyntaxException {
@@ -148,27 +188,46 @@ public class HomeController implements Initializable {
 		FileChooser.ExtensionFilter imgfilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*,png");
 		fc.getExtensionFilters().add(imgfilter);
 		File file = fc.showOpenDialog(stage);
+
 		if (file != null) {
-			Image imgage = new Image(file.toURI().toString());
-			imgview.setImage(imgage);
+			Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
+					timetf.getText(), urltf.getText());
 
-			Path source = Paths.get(file.toURI());
-			Path target = Paths.get(new File("img").getAbsolutePath() + "/" + file.toPath().getFileName());
-			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+				String userurl = film.getImgurl().replace("'", "");
+				if(!userurl.equals(defaulturl)) {
+					Files.delete(Paths.get(userurl.replace("file:", "")));	
+				}
+				Image imgage = new Image(file.toURI().toString());
+				imgview.setImage(imgage);
 
-			imgurl.setText("file:img" + "/" + file.toPath().getFileName());
-			User user = new User(emailtf.getText(), fullnametf.getText(), imgurl.getText());
-			UserDAO.imgChange(user);
+				Path source = Paths.get(file.toURI());
+				Path target = Paths.get(new File("img").getAbsolutePath() + "/" + file.toPath().getFileName());
+				Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+				String ext = getExtension(target);
+
+				Files.move(target, target
+						.resolveSibling(hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString())));
+
+				imgurl.setText(
+						"file:img" + "/" + hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString()));
+				
+				film.setImgurl(imgurl.getText());
+				
+			UserDAO.imgChange(film);
 			showUser();
+
 		}
 	}
 
 	@FXML
 	public void modifyAll() {
-		User user = new User(emailtf.getText(), fullnametf.getText());
-		UserDAO.updateUser(user, oldmail);
-		emailtf.setText(null);
-		fullnametf.setText(null);
+
+		Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
+				timetf.getText());
+		UserDAO.updateUser(film, oldname);
+		cleartf();
+		imgview.setImage(new Image(defaulturl));
 		showUser();
 	}
 
@@ -176,31 +235,81 @@ public class HomeController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 		Platform.runLater(() -> {
-			hello.setText("Xin chao "+username);
-			if(role==1) {
+			hello.setText("Xin chao " + username);
+			if (role == 1) {
 				addbtn.setDisable(true);
 				modify.setDisable(true);
 				deluser.setDisable(true);
 				changeimg.setDisable(true);
-				emailtf.setDisable(true);
-				fullnametf.setDisable(true);
+
+				nametf.setEditable(false);
+				countrytf.setEditable(false);
+				genretf.setEditable(false);
+				directf.setEditable(false);
+				timetf.setEditable(false);
 			}
+			addbtn.setDisable(true);
+			modify.setDisable(true);
+			deluser.setDisable(true);
+			changeimg.setDisable(true);
+
+			showUser();
 		});
-		
-		showUser();
 
 	}
 
 	private void showUser() {
-		emailcol.setCellValueFactory(new PropertyValueFactory<User, String>("Email"));
-		fullnamecol.setCellValueFactory(new PropertyValueFactory<User, String>("Fullname"));
-		imgurl.setCellValueFactory(new PropertyValueFactory<User, String>("imgurl"));
+		emailcol.setCellValueFactory(new PropertyValueFactory<Film, String>("name"));
+		fullnamecol.setCellValueFactory(new PropertyValueFactory<Film, String>("country"));
+		imgurl.setCellValueFactory(new PropertyValueFactory<Film, String>("imgurl"));
+		genrecol.setCellValueFactory(new PropertyValueFactory<Film, String>("genre"));
+		directcol.setCellValueFactory(new PropertyValueFactory<Film, String>("director"));
+		timecol.setCellValueFactory(new PropertyValueFactory<Film, Integer>("time"));
 
-		List<User> list = UserDAO.listAll();
+		List<Film> list = UserDAO.listAll();
 
-		ObservableList<User> oblist = FXCollections.observableArrayList(list);
+		ObservableList<Film> oblist = FXCollections.observableArrayList(list);
 
 		tbluser.setItems(oblist);
+		if (role == 0) {
+			autoAddCol();
+		}
+	}
+
+	private void autoAddCol() {
+		tbluser.getItems().add(new Film("(new)", "(new)", "(new)", "(new)", "(new)", defaulturl));
+	}
+
+	private void cleartf() {
+		nametf.setText(null);
+		countrytf.setText(null);
+		genretf.setText(null);
+		directf.setText(null);
+		timetf.setText(null);
+	}
+
+	private String deAccent(String str) {
+		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		return pattern.matcher(nfdNormalizedString).replaceAll("");
+	}
+
+	private String hashCoding(String name, String ext, String ran) {
+
+		long hashint = Math.abs(name.toLowerCase().hashCode() * ran.toUpperCase().hashCode());
+		String hashcoding = hashint + "." + ext;
+		return hashcoding;
+	}
+
+	private String getExtension(Path path) {
+		String fileName = path.getFileName().toString();
+		int dotIndex = fileName.lastIndexOf('.');
+
+		if (dotIndex == -1 || dotIndex == fileName.length() - 1) {
+			return "";
+		} else {
+			return fileName.substring(dotIndex + 1);
+		}
 	}
 
 }
