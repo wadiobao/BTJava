@@ -10,17 +10,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.util.List;
-import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
-
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -34,6 +34,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -76,15 +77,12 @@ public class HomeController implements Initializable {
 	@FXML
 	private TableColumn<Film, Integer> timecol;
 	@FXML
-	private Button changeimg;
+	private Button changeimg,addbtn,deluser,modify,savebtn,cancelbtn;
 	@FXML
-	private Button addbtn;
-	@FXML
-	private Button deluser;
+	private HBox btnarea,modarea;
 	@FXML
 	private BorderPane bd;
-	@FXML
-	private Button modify;
+
 	@FXML
 	private Hyperlink logout;
 
@@ -150,14 +148,16 @@ public class HomeController implements Initializable {
 			timetf.setText(film.getTime() + "");
 			urltf.setText(film.getImgurl().replace("'", ""));
 			imgview.setImage(new Image(film.getImgurl().replace("'", "")));
+			
+			setAllTfEdit(false);
+			
 			if (role == 0) {
 				oldname = nametf.getText();
-
 				changeimg.setDisable(false);
 				modify.setDisable(false);
 				deluser.setDisable(false);
 				addbtn.setDisable(true);
-
+				
 				if (nametf.getText().equals("(new)")) {
 					cleartf();
 					nametf.setPromptText("(new)");
@@ -165,10 +165,14 @@ public class HomeController implements Initializable {
 					genretf.setPromptText("(new)");
 					directf.setPromptText("(new)");
 					timetf.setPromptText("(new)");
+					
 					changeimg.setDisable(true);
 					modify.setDisable(true);
 					deluser.setDisable(true);
 					addbtn.setDisable(false);
+					
+					setAllTfEdit(true);
+					
 				}
 			}
 
@@ -222,36 +226,43 @@ public class HomeController implements Initializable {
 
 	@FXML
 	public void modifyAll() {
-
+		displayNone(btnarea);
+		display(modarea);
+		
+		setAllTfEdit(true);
+		
+	}
+	
+	@FXML
+	public void save() {
 		Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
 				timetf.getText());
 		UserDAO.updateUser(film, oldname);
 		cleartf();
 		imgview.setImage(new Image(defaulturl));
+		
+		displayNone(modarea);
+		display(btnarea);
+		
+		setAllBtnDis(true);
 		showUser();
+	}
+	@FXML
+	public void cancel() {
+		displayNone(modarea);
+		display(btnarea);
+		setAllTfEdit(false);
 	}
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 		Platform.runLater(() -> {
-			hello.setText("Xin chao " + username);
-			if (role == 1) {
-				addbtn.setDisable(true);
-				modify.setDisable(true);
-				deluser.setDisable(true);
-				changeimg.setDisable(true);
-
-				nametf.setEditable(false);
-				countrytf.setEditable(false);
-				genretf.setEditable(false);
-				directf.setEditable(false);
-				timetf.setEditable(false);
-			}
-			addbtn.setDisable(true);
-			modify.setDisable(true);
-			deluser.setDisable(true);
-			changeimg.setDisable(true);
+			hello.setText("Xin chào " + username);
+			displayNone(urltf);
+			displayNone(modarea);
+			setAllTfEdit(false);
+			setAllBtnDis(true);
 
 			showUser();
 		});
@@ -288,11 +299,6 @@ public class HomeController implements Initializable {
 		timetf.setText(null);
 	}
 
-	private String deAccent(String str) {
-		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
-		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-		return pattern.matcher(nfdNormalizedString).replaceAll("");
-	}
 
 	private String hashCoding(String name, String ext, String ran) {
 
@@ -311,5 +317,30 @@ public class HomeController implements Initializable {
 			return fileName.substring(dotIndex + 1);
 		}
 	}
-
+	
+	private void displayNone(Node node) {
+		node.managedProperty().bind(node.visibleProperty());
+		node.setVisible(false);		
+	}
+	
+	private void display(Node node) {
+		node.managedProperty().bind(node.visibleProperty());
+		node.setVisible(true);		
+	}
+	
+	
+	private void setAllBtnDis(boolean a) {
+		addbtn.setDisable(a);
+		modify.setDisable(a);
+		deluser.setDisable(a);
+		changeimg.setDisable(a);
+	}
+	
+	private void setAllTfEdit(boolean a) {
+		nametf.setEditable(a);
+		countrytf.setEditable(a);
+		genretf.setEditable(a);
+		directf.setEditable(a);
+		timetf.setEditable(a);
+	}
 }

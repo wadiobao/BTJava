@@ -76,11 +76,17 @@
             <Label text="Năm sản xuất" />
             <TextField fx:id="timetf" />
             <TextField fx:id="urltf" disable="true" editable="false" opacity="0.0" prefHeight="21.0" prefWidth="244.0" visible="false" />
-            <HBox alignment="CENTER" prefHeight="48.0" prefWidth="270.0" spacing="5.0">
+            <HBox fx:id="btnarea" alignment="CENTER" prefHeight="48.0" prefWidth="270.0" spacing="5.0">
                <children>
-                  <Button fx:id="addbtn" mnemonicParsing="false" onAction="#add" text="Thêm" />
-                  <Button fx:id="modify" mnemonicParsing="false" onAction="#modifyAll" text="Sửa" />
-                  <Button fx:id="deluser" mnemonicParsing="false" onAction="#deluser" text="Xóa" />
+                  <Button fx:id="addbtn" alignment="CENTER" mnemonicParsing="false" onAction="#add" text="Thêm" />
+                  <Button fx:id="modify" alignment="CENTER" mnemonicParsing="false" onAction="#modifyAll" text="Sửa" />
+                  <Button fx:id="deluser" alignment="CENTER" mnemonicParsing="false" onAction="#deluser" text="Xóa" />
+               </children>
+            </HBox>
+            <HBox fx:id="modarea" alignment="CENTER" focusTraversable="true" prefHeight="100.0" prefWidth="200.0" spacing="10.0" visible="false">
+               <children>
+                  <Button fx:id="savebtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#save" text="Lưu" />
+                  <Button fx:id="cancelbtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#cancel" text="Hủy" />
                </children>
             </HBox>
          </children>
