@@ -77,9 +77,9 @@ public class HomeController implements Initializable {
 	@FXML
 	private TableColumn<Film, Integer> timecol;
 	@FXML
-	private Button changeimg,addbtn,deluser,modify,savebtn,cancelbtn;
+	private Button changeimg, addbtn, deluser, modify, savebtn, cancelbtn;
 	@FXML
-	private HBox btnarea,modarea;
+	private HBox btnarea, modarea;
 	@FXML
 	private BorderPane bd;
 
@@ -95,9 +95,20 @@ public class HomeController implements Initializable {
 	public void add() {
 		Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
 				timetf.getText());
-		UserDAO.addUser(film);
-		cleartf();
-		showUser();
+		if (UserDAO.addUser(film)) {
+			cleartf();
+			showUser();
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Thông báo");
+			alert.setHeaderText("Thêm thành công!");
+			alert.showAndWait();
+		} else {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Thông báo");
+			alert.setHeaderText("Đã tồn tại phim");
+			alert.showAndWait();
+		}
+
 	}
 
 	@FXML
@@ -148,16 +159,16 @@ public class HomeController implements Initializable {
 			timetf.setText(film.getTime() + "");
 			urltf.setText(film.getImgurl().replace("'", ""));
 			imgview.setImage(new Image(film.getImgurl().replace("'", "")));
-			
+
 			setAllTfEdit(false);
-			
+
 			if (role == 0) {
 				oldname = nametf.getText();
 				changeimg.setDisable(false);
 				modify.setDisable(false);
 				deluser.setDisable(false);
 				addbtn.setDisable(true);
-				
+
 				if (nametf.getText().equals("(new)")) {
 					cleartf();
 					nametf.setPromptText("(new)");
@@ -165,14 +176,14 @@ public class HomeController implements Initializable {
 					genretf.setPromptText("(new)");
 					directf.setPromptText("(new)");
 					timetf.setPromptText("(new)");
-					
+
 					changeimg.setDisable(true);
 					modify.setDisable(true);
 					deluser.setDisable(true);
 					addbtn.setDisable(false);
-					
+
 					setAllTfEdit(true);
-					
+
 				}
 			}
 
@@ -197,27 +208,27 @@ public class HomeController implements Initializable {
 			Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
 					timetf.getText(), urltf.getText());
 
-				String userurl = film.getImgurl().replace("'", "");
-				if(!userurl.equals(defaulturl)) {
-					Files.delete(Paths.get(userurl.replace("file:", "")));	
-				}
-				Image imgage = new Image(file.toURI().toString());
-				imgview.setImage(imgage);
+			String userurl = film.getImgurl().replace("'", "");
+			if (!userurl.equals(defaulturl)) {
+				Files.delete(Paths.get(userurl.replace("file:", "")));
+			}
+			Image imgage = new Image(file.toURI().toString());
+			imgview.setImage(imgage);
 
-				Path source = Paths.get(file.toURI());
-				Path target = Paths.get(new File("img").getAbsolutePath() + "/" + file.toPath().getFileName());
-				Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+			Path source = Paths.get(file.toURI());
+			Path target = Paths.get(new File("img").getAbsolutePath() + "/" + file.toPath().getFileName());
+			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
-				String ext = getExtension(target);
+			String ext = getExtension(target);
 
-				Files.move(target, target
-						.resolveSibling(hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString())));
+			Files.move(target,
+					target.resolveSibling(hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString())));
 
-				imgurl.setText(
-						"file:img" + "/" + hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString()));
-				
-				film.setImgurl(imgurl.getText());
-				
+			imgurl.setText(
+					"file:img" + "/" + hashCoding(nametf.getText(), ext, file.toPath().getFileName().toString()));
+
+			film.setImgurl(imgurl.getText());
+
 			UserDAO.imgChange(film);
 			showUser();
 
@@ -228,25 +239,36 @@ public class HomeController implements Initializable {
 	public void modifyAll() {
 		displayNone(btnarea);
 		display(modarea);
-		
+
 		setAllTfEdit(true);
-		
+
 	}
-	
+
 	@FXML
 	public void save() {
 		Film film = new Film(nametf.getText(), countrytf.getText(), genretf.getText(), directf.getText(),
 				timetf.getText());
-		UserDAO.updateUser(film, oldname);
-		cleartf();
-		imgview.setImage(new Image(defaulturl));
-		
-		displayNone(modarea);
-		display(btnarea);
-		
-		setAllBtnDis(true);
-		showUser();
+		if (UserDAO.updateUser(film, oldname)) {
+			cleartf();
+			imgview.setImage(new Image(defaulturl));
+
+			displayNone(modarea);
+			display(btnarea);
+
+			setAllBtnDis(true);
+			showUser();
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Thông báo");
+			alert.setHeaderText("Sửa thành công!");
+			alert.showAndWait();
+		} else {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Thông báo");
+			alert.setHeaderText("Tên phim muốn sửa đã tồn tại! Vui lòng kiểm tra lại!");
+			alert.showAndWait();
+		}
 	}
+
 	@FXML
 	public void cancel() {
 		displayNone(modarea);
@@ -299,7 +321,6 @@ public class HomeController implements Initializable {
 		timetf.setText(null);
 	}
 
-
 	private String hashCoding(String name, String ext, String ran) {
 
 		long hashint = Math.abs(name.toLowerCase().hashCode() * ran.toUpperCase().hashCode());
@@ -317,25 +338,24 @@ public class HomeController implements Initializable {
 			return fileName.substring(dotIndex + 1);
 		}
 	}
-	
+
 	private void displayNone(Node node) {
 		node.managedProperty().bind(node.visibleProperty());
-		node.setVisible(false);		
+		node.setVisible(false);
 	}
-	
+
 	private void display(Node node) {
 		node.managedProperty().bind(node.visibleProperty());
-		node.setVisible(true);		
+		node.setVisible(true);
 	}
-	
-	
+
 	private void setAllBtnDis(boolean a) {
 		addbtn.setDisable(a);
 		modify.setDisable(a);
 		deluser.setDisable(a);
 		changeimg.setDisable(a);
 	}
-	
+
 	private void setAllTfEdit(boolean a) {
 		nametf.setEditable(a);
 		countrytf.setEditable(a);

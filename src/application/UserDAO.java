@@ -58,7 +58,8 @@ public class UserDAO {
 		
 	}
 	
-	public static void addUser(Film film) {
+	@SuppressWarnings("finally")
+	public static boolean addUser(Film film) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
@@ -85,7 +86,9 @@ public class UserDAO {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return inserted;
 		}
+			return inserted;	
 	}
 	
 	public static void delUser(Film film) {
@@ -143,7 +146,7 @@ public class UserDAO {
 		}
 	}
 	
-	public static void updateUser(Film film,String oldname) {
+	public static boolean updateUser(Film film,String oldname) {
 		String jdbcURL = "jdbc:ucanaccess://lib/QLNS.accdb";
 		String jdbcUser = "";
 		String jdbcPass ="";
@@ -171,7 +174,10 @@ public class UserDAO {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return updated;
 		}
+		
+		return updated;
 	}
 	
 	public static UserInfor checkUser(UserInfor in) {
